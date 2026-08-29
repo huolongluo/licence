@@ -90,25 +90,25 @@ Cursor (Grok 4.6) was used to implement the desk, MCP server, and TrueForge boot
 
 ## Qodo Code Review Evidence
 
-Required of every submission. After the public repo exists:
+Representative merged PR: [huolongluo/licence#1](https://github.com/huolongluo/licence/pull/1) — isolate hardening for `run_diagnostic`.
 
-1. Install Qodo on this repository (Integrations → SaaS → GitHub).
-2. Open a pull request with meaningful hackathon code. If Qodo does not start, comment `/agentic_review`.
-3. Fix every valid High finding, or dismiss it in the Qodo thread with a reason. Push, then `/agentic_review` again.
-4. Replace this paragraph with:
-   - a link to that merged PR
-   - one or two sentences on what Qodo surfaced and what we changed or dismissed
-   - the PR history showing review → decision → follow-up review
+Qodo's first review raised one **High**: the host-realm `console.log` callback still exposed `Function`, so agent-written diagnostics could run `console.log.constructor("return process")()` and leave the isolate. We did not dismiss it. The follow-up commit moved `console.log` into the sandbox realm, prototype-nulled the host capture, deleted that capture before user code ran, and added a regression test for the callback path. Qodo's follow-up review against `67dc825` marked the finding **Resolved** (Bugs 0). Merge commit `14804c3`.
 
-Direct pushes to `main` do not count.
+PR history:
+
+1. Open [#1](https://github.com/huolongluo/licence/pull/1) from `feat/isolate-escape`.
+2. `/agentic_review` — Qodo High on host callback escape.
+3. Push `67dc825` — guest-realm `console.log` + extra test.
+4. Qodo re-review — High resolved.
+5. Merge to `main`.
 
 ## Submit checklist
 
-- [ ] Public GitHub repository
-- [ ] This README (setup + TrueForge write-up)
+- [x] Public GitHub repository — https://github.com/huolongluo/licence
+- [x] This README (setup + TrueForge write-up)
 - [ ] Demo video ~3 minutes
-- [ ] Qodo evidence section filled with a public PR link
-- [ ] AI disclosure above
+- [x] Qodo evidence section filled with a public PR link
+- [x] AI disclosure above
 - [ ] Optional: [field report](docs/field-report.md) for the blog prize
 
 Deadline: 30 August 2026, 20:00 London.
