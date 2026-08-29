@@ -215,10 +215,8 @@ export function Desk() {
     if (!autoplay || started.current) return;
     started.current = true;
     const stop = startReplay();
-    const grant = window.setTimeout(() => decide(true), 14000);
     return () => {
       stop();
-      clearTimeout(grant);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoplay]);
