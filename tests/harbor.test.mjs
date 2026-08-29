@@ -74,6 +74,17 @@ test("diagnostic isolate blocks constructor escape", () => {
   assert.match(result.stdout, /blocked:EvalError/);
 });
 
+test("diagnostic isolate blocks host callback constructor escape", () => {
+  const world = createWorld();
+  const result = world.runDiagnostic(`
+    let leaked = "no";
+    try { leaked = typeof console.log.constructor("return process")(); }
+    catch (error) { leaked = "blocked:" + error.name; }
+    console.log(leaked);
+  `);
+  assert.match(result.stdout, /blocked:EvalError/);
+});
+
 test("unknown deploy cannot be rolled back", () => {
   const world = createWorld();
   assert.throws(() => world.rollbackDeploy("ffff", "not a real deploy id here"), /unknown deploy/);
