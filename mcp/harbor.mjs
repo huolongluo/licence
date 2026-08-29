@@ -41,24 +41,48 @@ export function createWorld(seed = loadFixture()) {
         throw new Error("diagnostic code exceeds 12k characters");
       }
       const stdout = [];
-      const sandbox = {
-        console: {
-          log: (...args) => stdout.push(args.map(stringify).join(" ")),
-        },
-        metrics: structuredClone(state.metrics),
-        deploys: structuredClone(state.deploys),
-        logs: structuredClone(state.logs),
-        alert: structuredClone(state.alert),
+      const capture = (line) => {
+        stdout.push(String(line));
       };
-      Object.freeze(sandbox.metrics);
-      Object.freeze(sandbox.deploys);
-      Object.freeze(sandbox.logs);
-      Object.freeze(sandbox.alert);
-      vm.runInNewContext(code, sandbox, {
+      Object.setPrototypeOf(capture, null);
+      Object.freeze(capture);
+
+      const sandbox = Object.create(null);
+      sandbox.__capture = capture;
+      sandbox.metrics = Object.freeze(structuredClone(state.metrics));
+      sandbox.deploys = Object.freeze(structuredClone(state.deploys));
+      sandbox.logs = Object.freeze(structuredClone(state.logs));
+      sandbox.alert = Object.freeze(structuredClone(state.alert));
+
+      const isolate = {
         timeout: 8000,
         displayErrors: true,
         contextCodeGeneration: { strings: false, wasm: false },
-      });
+      };
+
+      // Install console.log inside the isolate so its Function constructor is
+      // the sandbox realm (codegen-from-strings is off). The host capture is
+      // prototype-null and deleted before user code runs.
+      vm.runInNewContext(
+        `(function (cap) {
+          Object.defineProperty(globalThis, "console", {
+            value: Object.freeze({
+              log: function log() {
+                var parts = [];
+                for (var i = 0; i < arguments.length; i++) parts.push(String(arguments[i]));
+                cap(parts.join(" "));
+              }
+            }),
+            writable: false,
+            configurable: false
+          });
+        })(__capture);
+        delete globalThis.__capture;`,
+        sandbox,
+        isolate,
+      );
+
+      vm.runInNewContext(code, sandbox, isolate);
       return {
         isolated: true,
         network: false,
@@ -120,13 +144,4 @@ function recovery(state) {
     checkout_error_rate: 0.081,
     note: "checkout still failing — no rollback applied",
   };
-}
-
-function stringify(value) {
-  if (typeof value === "string") return value;
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
 }
