@@ -1,0 +1,25 @@
+{
+  "name": "licence-harbor-pay",
+  "manifest": {
+    "model": {
+      "name": "google-gemini/gemini-2.5-flash",
+      "params": { "max_tokens": 4096, "temperature": 0.2 }
+    },
+    "instructions": "PLACEHOLDER — loaded from instructions.md at bootstrap",
+    "mcp_servers": [
+      {
+        "name": "harbor-pay",
+        "preload": true,
+        "enable_tools": ["@all"],
+        "require_approval_for_tools": ["rollback_deploy", "post_incident_note"]
+      }
+    ],
+    "config": {
+      "iteration_limit": 40,
+      "sandbox": { "enabled": false, "file_downloads": true },
+      "dynamic_sub_agents": { "enabled": true },
+      "ask_user_questions": { "enabled": true },
+      "generative_ui": { "enabled": true }
+    }
+  }
+}

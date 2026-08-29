@@ -1,0 +1,24 @@
+{
+  "name": "licence",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Licence Desk — a TrueForge agent that investigates Harbor Pay and stops before rollback.",
+  "scripts": {
+    "mcp": "node mcp/server.mjs",
+    "bootstrap": "node harness/bootstrap.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:app": "npm --prefix app run dev",
+    "preview": "npm --prefix app run build && npm --prefix app start",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "zod": "^3.25.67"
+  }
+}

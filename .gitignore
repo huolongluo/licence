@@ -1,0 +1,12 @@
+node_modules
+.next
+.next-desk
+out
+*.log
+.DS_Store
+.env
+.env.local
+app/.env.local
+evidence/raw-video
+evidence/*.webm
+mcp/data.runtime.json

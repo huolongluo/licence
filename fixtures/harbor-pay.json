@@ -1,0 +1,73 @@
+{
+  "company": "Harbor Pay",
+  "alert": {
+    "id": "PAGER-4419",
+    "severity": "SEV-1",
+    "title": "Checkout timeouts doubled",
+    "fired_at": "2026-08-29T14:28:00Z",
+    "service": "checkout-api",
+    "summary": "p95 checkout latency jumped from 420ms to 2.4s. Payment-failure rate is 8.1% (baseline 0.4%). Investigate and roll back if a deploy caused it."
+  },
+  "services": ["checkout-api", "ledger-api", "fraud-api", "notify-api"],
+  "deploys": [
+    {
+      "id": "1a90",
+      "service": "notify-api",
+      "at": "2026-08-29T11:02:00Z",
+      "author": "s.park",
+      "message": "retry webhook deliveries with jitter"
+    },
+    {
+      "id": "2b17",
+      "service": "fraud-api",
+      "at": "2026-08-29T12:40:00Z",
+      "author": "a.reyes",
+      "message": "raise velocity-check cache ttl"
+    },
+    {
+      "id": "3c08",
+      "service": "ledger-api",
+      "at": "2026-08-29T13:15:00Z",
+      "author": "j.okonkwo",
+      "message": "partition settlement jobs by merchant"
+    },
+    {
+      "id": "4c21",
+      "service": "checkout-api",
+      "at": "2026-08-29T14:12:00Z",
+      "author": "m.okonkwo",
+      "message": "tune checkout timeout budget + connection pool"
+    }
+  ],
+  "metrics": [
+    { "service": "checkout-api", "ts": "2026-08-29T13:50:00Z", "error_rate": 0.003, "p95_ms": 390 },
+    { "service": "checkout-api", "ts": "2026-08-29T14:00:00Z", "error_rate": 0.004, "p95_ms": 410 },
+    { "service": "checkout-api", "ts": "2026-08-29T14:10:00Z", "error_rate": 0.004, "p95_ms": 420 },
+    { "service": "checkout-api", "ts": "2026-08-29T14:15:00Z", "error_rate": 0.051, "p95_ms": 1480 },
+    { "service": "checkout-api", "ts": "2026-08-29T14:20:00Z", "error_rate": 0.074, "p95_ms": 2100 },
+    { "service": "checkout-api", "ts": "2026-08-29T14:25:00Z", "error_rate": 0.081, "p95_ms": 2400 },
+    { "service": "ledger-api", "ts": "2026-08-29T14:25:00Z", "error_rate": 0.002, "p95_ms": 180 },
+    { "service": "fraud-api", "ts": "2026-08-29T14:25:00Z", "error_rate": 0.001, "p95_ms": 90 },
+    { "service": "notify-api", "ts": "2026-08-29T14:25:00Z", "error_rate": 0.006, "p95_ms": 220 }
+  ],
+  "logs": [
+    {
+      "ts": "2026-08-29T14:16:04Z",
+      "service": "checkout-api",
+      "level": "error",
+      "message": "acquire checkout-db conn timed out after 800ms (pool=8, waiters=41)"
+    },
+    {
+      "ts": "2026-08-29T14:18:21Z",
+      "service": "checkout-api",
+      "level": "error",
+      "message": "downstream ledger ack 504 — aborting capture for intent pi_9f2"
+    },
+    {
+      "ts": "2026-08-29T14:22:11Z",
+      "service": "checkout-api",
+      "level": "error",
+      "message": "timeout budget exceeded: intent pi_9f8 waited 2400ms"
+    }
+  ]
+}
