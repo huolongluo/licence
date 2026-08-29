@@ -41,19 +41,14 @@ export function createWorld(seed = loadFixture()) {
         throw new Error("diagnostic code exceeds 12k characters");
       }
       const stdout = [];
-      const sandbox = {
-        console: {
-          log: (...args) => stdout.push(args.map(stringify).join(" ")),
-        },
-        metrics: structuredClone(state.metrics),
-        deploys: structuredClone(state.deploys),
-        logs: structuredClone(state.logs),
-        alert: structuredClone(state.alert),
-      };
-      Object.freeze(sandbox.metrics);
-      Object.freeze(sandbox.deploys);
-      Object.freeze(sandbox.logs);
-      Object.freeze(sandbox.alert);
+      const sandbox = Object.create(null);
+      sandbox.console = Object.freeze({
+        log: (...args) => stdout.push(args.map(stringify).join(" ")),
+      });
+      sandbox.metrics = Object.freeze(structuredClone(state.metrics));
+      sandbox.deploys = Object.freeze(structuredClone(state.deploys));
+      sandbox.logs = Object.freeze(structuredClone(state.logs));
+      sandbox.alert = Object.freeze(structuredClone(state.alert));
       vm.runInNewContext(code, sandbox, {
         timeout: 8000,
         displayErrors: true,
